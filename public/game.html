@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+<link rel="stylesheet" href="./css/style.css">
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container-fluid" style="max-width:1400px;padding: 0px 4px 0px 4px;" margin="0 auto">
+    <div class="header">
+      <h2 id="roomName">RoomNameHere</h2>
+    </div>
+    <div id="screenGame">
+      <div class="gameHeader">
+        <div class="timer-container">
+          <div id="timer">3</div>
+        </div>
+        <div id="round">Round 3 of 3</div>
+        <div id="currentWord">Toradora</div>
+        <div class="gameHeaderButtons"></div></div>
+      <div class="containerGame">
+        <div id="containerPlayerlist">
+          <div id="containerGamePlayers">
+            <div class="player" id="player142">
+              <div class="rank">2</div>
+              <div class="info">
+                <div class="name">Domodomo0</div>
+                <div class="score">2000</div>
+              </div>
+              <div class="avatar"></div>
+            </div>
+            <div class="player" id="player122">
+              <div class="rank">3</div>
+              <div class="info">
+                <div class="name">tejava</div>
+                <div class="score">1000</div>
+              </div>
+              <div class="avatar"></div>
+            </div>
+            <div class="player" id="player167">
+              <div class="rank">1</div>
+              <div class="info">
+                <div class="name">athlon</div>
+                <div class="score">8000</div>
+              </div>
+              <div class="avatar"></div>
+            </div>
+          </div>
+        </div>
+        <div id="containerBoard">
+          <div id="containerCanvas">
+            <canvas id="canvasGame" width="800" height="600" style="">Canvas not supported by your Browser!</canvas>
+          </div>
+        </div>
+        <div id="containerSidebar">
+          <div id="containerFreespace"></div>
+          <div id="containerChat">
+            <div id="boxChat">
+              <div id="boxMessages">
+                <p style="color: rgb(0, 0, 0);"><b>quandale din: </b><span>hair brush</span></p>
+                <p style="color: rgb(86, 206, 39); font-weight: bold;"><span>The word was 'hair roller'</span></p>
+                <p style="color: rgb(57, 117, 206); font-weight: bold;"><span>ecopjg is drawing now!</span></p>
+                <p style="color: rgb(0, 0, 0);"><b>quandale din: </b><span>mud</span></p>
+              </div>              
+              <div id="boxChatInput">
+                <form id="formChat" action="">
+                  <input class="form-control"
+                  id="inputChat" 
+                  autocomplete="off" 
+                  type="text" 
+                  placeholder="Type your guess here..." 
+                  required 
+                  maxlength="100">
+                </form>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>  
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/5.1.0/qs.min.js" integrity="sha512-rjHuJkWaHSdq796S1Ov1tnGgXeQkEFTsrPW0VOjYUHU1b3Ey489/9n3FUSC0vfeaxTWjOVS8VLe1fLZ2kblcBg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
