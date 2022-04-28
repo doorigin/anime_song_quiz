@@ -66,7 +66,7 @@ function outputUsers(users) {
           <div class="rank">2</div>
           <div class="info">
             <div class="name">${user.username}</div>
-            <div class="score">2000</div>
+            <div class="score">${user.score}</div>
           </div>
           <div class="avatar"></div>
         </div>`).join('')}

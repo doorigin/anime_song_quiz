@@ -26,7 +26,7 @@ io.on('connection', socket => {
     socket.on('joinRoom', ({ username, room }) => {
 
         console.log(`${username} joined ${room}`)
-        const user = userJoin(socket.id, username, room);
+        const user = userJoin(socket.id, username, room, score=0);
 
         socket.join(user.room)
 
