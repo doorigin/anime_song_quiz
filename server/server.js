@@ -9,7 +9,8 @@ const {
     getCurrentUser, 
     userLeave, 
     getRoomUsers,
-    updateScore,
+    updateScores,
+    resetScores,
     setRanks,
     getRank
 } = require('./utils/users');
@@ -18,8 +19,12 @@ const {
     getAnswer,
     getQuestion,
     nextQuestion,
-    resetWords
-} = require('./utils/question')
+    resetWords,
+    setRounds,
+    decreaseRounds,
+    getRounds
+} = require('./utils/question');
+const {Game, updateUserScoreRank} = require('./utils/game');
 
 global.answer = ""
 
@@ -44,72 +49,42 @@ io.on('connection', socket => {
         socket.join(user.room)
 
         // Welcome current user
-        socket.emit('message', formatMessage(botname,'Welcome to the chat room'));
+        socket.emit('message', formatMessage(botname,'Welcome to the game'));
 
         // Broadcast when a user connects
-        socket.broadcast
-          .to(user.room)
-          .emit(
-              'message', 
-              formatMessage(botname,`${user.username} has joined the chat`)
-              );
+        socket.broadcast.to(user.room).emit('message', formatMessage(botname,`${user.username} has joined the game`));
         
-        // Set player rank
-        setRanks(getRoomUsers(user.room))
+        updateUserScoreRank(io, user)
 
-        // Send users and room info
-        io.to(user.room).emit('roomUsers', {
-            room: user.room,
-            users: getRoomUsers(user.room)
-        })
     });
 
     // Listen for chatMessage
     socket.on('chatMessage', (msg) => {
         const user = getCurrentUser(socket.id);
-        console.log(user)
-        console.log(answer);
+
+        io.to(user.room).emit('message', formatMessage(user.username, msg));
 
         // if answer is right
         if (answer !== "" && answer === msg) {
-            io.to(user.room).emit('message', formatMessage(user.username, msg))
-            io.to(user.room).emit('message', formatMessage(botname, `${user.username} right answer`));
-            nextQuestion();
-            updateScore(user, 10);
-            // update player rank
-            setRanks(getRoomUsers(user.room))
-            // Update player score to client
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            });
-        } else {
-            io.to(user.room).emit('message', formatMessage(user.username, msg));
-        }
+            game.answered(io, user)}
+        
     });
-    
+
     // When Game start button clicked
     socket.on('startGame', () => {
         const user = getCurrentUser(socket.id);
-        io.to(user.room).emit(
-              'message', 
-              formatMessage(botname,`${user.username} has pressed game start`)
-              );
-        
+
+        var round = 5
+        global.game = new Game(round)
+
+        game.startGame(io, user)
+
         // add questions to words
-        addWords(2)
+        game.addQuestions()
+
+        // run Round
+        game.runRound(io, user)
         
-        // clear canvas
-        io.to(user.room).emit('image', {image: false, buffer: false});
-
-        // show question image
-        fs.readFile(path.join(__dirname, '../public/img', getQuestion()), function(err, buf){
-            if (err) throw err;
-
-            io.to(user.room).emit('image', { image: true, buffer: buf.toString('base64') });
-            console.log('image file is initialized');
-        });
-        answer = getAnswer()
     });
 
 
@@ -119,12 +94,7 @@ io.on('connection', socket => {
 
         if(user) {
             io.to(user.room).emit('message', formatMessage(botname,`${user.username} has left the chat`));
-
-            // Send users and room info
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            })
+            updateUserScoreRank(io, user)
         }
     });
 });

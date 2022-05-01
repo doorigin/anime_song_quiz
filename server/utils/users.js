@@ -28,12 +28,16 @@ function getRoomUsers(room) {
 };
 
 // update user score
-function updateScore(user, scoreChange) {
+function updateScores(user, scoreChange) {
     var item = { id: user.id, username: user.username, room: user.room, score: user.score + scoreChange};
-    console.log(item);
     var foundIndex = users.findIndex(x => x.id == item.id);
     users[foundIndex] = item;
-    console.log(users);
+}
+
+function resetScores() {
+    for (let i=0; i < users.length; i++) {
+        users[i].score = 0
+      };
 }
 
 // set or update rank
@@ -61,7 +65,8 @@ module.exports = {
     getCurrentUser,
     userLeave,
     getRoomUsers,
-    updateScore,
+    updateScores,
+    resetScores,
     setRanks,
     getRank
 }

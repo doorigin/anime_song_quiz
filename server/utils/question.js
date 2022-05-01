@@ -1,4 +1,5 @@
-const words = []
+var words = []
+rounds = 0
 
 // 단어 목록
 const wordpool = [
@@ -42,10 +43,24 @@ function resetWords() {
     words = []
 }
 
+function setRounds(input) {
+    rounds = input
+}
+
+function decreaseRounds() {
+    rounds--
+}
+function getRounds() {
+    return rounds
+}
+
 module.exports = {
     addWords,
     getAnswer,
     getQuestion,
     nextQuestion,
-    resetWords
+    resetWords,
+    setRounds,
+    decreaseRounds,
+    getRounds
 }

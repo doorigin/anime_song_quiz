@@ -3,6 +3,8 @@ const chatMessages = document.getElementById('boxMessages');
 const roomName = document.getElementById('roomName');
 const userList = document.getElementById('containerGamePlayers').getElementsByClassName('name');
 const startGameButton = document.getElementById("startGameButton");
+const timer = document.getElementById("timer");
+const roundTab = document.getElementById("round");
 
 console.log(userList);
 // // Get username and room from URL qs cdn
@@ -22,12 +24,23 @@ socket.on('roomUsers', ({ room, users }) => {
     outputUsers(users);
 })
 
+// Get round info
+socket.on('roundInfo', ({ currentRound, totalRounds }) => {
+    outputRoundInfo(currentRound, totalRounds)
+})
+
 // Message from server
 socket.on('message', message => {
     outputMessage(message);
 
     // Scroll down
     chatMessages.scrollTop = chatMessages.scrollHeight;
+})
+
+// Get timer counter
+socket.on('counter', count => {
+    console.log('counter start')
+    outputTimer(count);
 })
 
 // Message submit
@@ -51,7 +64,7 @@ function outputMessage(message) {
     p.classList.add('message');
     
     if (message.username === "domobot") {
-        p.style.cssText = "color: rgb(86, 206, 39); font-weight: bold;";
+        p.style.cssText = "color: rgb(150, 30, 200); font-weight: bold;";
         p.innerHTML = `<span>${message.text}</span>`;
     } else {
         p.innerHTML = `<b>${message.username}: </b><span>${message.text}</span>`;
@@ -81,6 +94,15 @@ function outputUsers(users) {
     `;
 }
 
+function outputRoundInfo(currentRound, totalRounds) {
+    roundTab.innerHTML = `Round ${currentRound} of ${totalRounds}`
+}
+
+// Output timer count to DOM
+function outputTimer(count) {
+    timer.innerHTML = count
+}
+
 // When click game start button
 startGameButton.addEventListener('click', e => {
     e.preventDefault();
@@ -96,7 +118,7 @@ socket.on('showQuestion', image => {
 
 var canvas = document.getElementById("canvasGame");
 var ctx = canvas.getContext('2d');
-// Listen to img-chunk
+// Listen to image
 socket.on('image', function(info) {
     if (info.image) {
         console.log("image");
