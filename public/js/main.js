@@ -24,6 +24,11 @@ socket.on('roomUsers', ({ room, users }) => {
     outputUsers(users);
 })
 
+socket.on('showStartButton', () => {
+    console.log('show start bvutton')
+    showSettings()
+})
+
 // Get round info
 socket.on('roundInfo', ({ currentRound, totalRounds }) => {
     outputRoundInfo(currentRound, totalRounds)
@@ -103,12 +108,23 @@ function outputTimer(count) {
     timer.innerHTML = count
 }
 
+function showSettings() {
+    document.getElementById("containerFreespace").hidden = false
+}
+
 // When click game start button
 startGameButton.addEventListener('click', e => {
     e.preventDefault();
 
+    var rounds = parseInt(document.getElementById('settings-rounds').value)
+    var roundtime = parseInt(document.getElementById('settings-time').value)
+    document.getElementById("containerFreespace").hidden = true
+
+    console.log("rounds: ", rounds, typeof(rounds))
+    console.log("roundtime: ", roundtime, typeof(roundtime))
+
     // Emit message to server
-    socket.emit('startGame');
+    socket.emit('startGame', {rounds, roundtime});
 })
 
 // Listen to Show question
@@ -116,19 +132,35 @@ socket.on('showQuestion', image => {
     console.log('show image', image)
 })
 
-var canvas = document.getElementById("canvasGame");
-var ctx = canvas.getContext('2d');
-// Listen to image
-socket.on('image', function(info) {
-    if (info.image) {
-        console.log("image");
-        var img = new Image();
-        img.src = 'data:image/png;base64,' + info.buffer;
-        img.onload = function () {
-            ctx.drawImage(img, 0, 0);
-        };
+
+// Listen to video (question)
+socket.on('video', (info) => {
+    if (info.video) {
+        console.log(info.src);
+        var canvas = document.getElementById("containerCanvas");
+        canvas.innerHTML = `<video id=video${info.id} src=${info.src} width="100%" oncanplaythrough="readyToPlay()"></video>`
     } else {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        console.log("no image");
+        console.log("no video");
     }
+})
+
+var readyToPlay = () => {
+    socket.emit('ready');
+}
+
+socket.on('play', () => {
+    console.log('play video')
+    clearTimeout(timeoutID)
+    document.querySelector('video').play()
+    var elemid = document.querySelector('video').id
+    document.getElementById(elemid).style.visibility="hidden";
+    var timeoutID = setTimeout(showVideo = () => {
+        document.getElementById(elemid).style.visibility="visible";
+    }, 10000);
+})
+
+socket.on('gameOver', () => {
+    console.log('Game Over');
+    var canvas = document.getElementById("containerCanvas");
+    canvas.innerHTML = `<img src="https://wordsforest.com/wp-content/uploads/2015/08/amagib1.jpg" alt="잠시만요" width="806">`
 })

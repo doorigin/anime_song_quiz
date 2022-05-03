@@ -25,13 +25,21 @@
           </div>
         </div>
         <div id="containerBoard">
-          <div id="containerCanvas">
-            <canvas id="canvasGame" width="800" height="600" style="border:1px solid #000000;">Canvas not supported by your Browser!</canvas>
+          <div id="containerCanvas" style="height: auto; width: 100%; border:2px solid black;">
+            <img src="https://wordsforest.com/wp-content/uploads/2015/08/amagib1.jpg" alt="잠시만요" width="806">
           </div>
         </div>
         <div id="containerSidebar">
-          <div id="containerFreespace">
-            <button id="startGameButton">Start Game</button>
+          <div id="containerFreespace" hidden>
+            <div class="settings-rounds">
+              <label for="rounds">Rounds: </label>
+              <input type="number" name="rounds" id="settings-rounds" value="5" required>
+            </div>
+            <div class="settings-time">
+              <label for="time">Time: </label>
+              <input type="number" name="time" id="settings-time" value = "92" required>
+            </div>
+            <button id="startGameButton" type="button">Game Start</button>
           </div>
           <div id="containerChat">
             <div id="boxChat">

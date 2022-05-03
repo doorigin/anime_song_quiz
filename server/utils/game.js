@@ -9,21 +9,21 @@ const {
     updateScores,
     resetScores,
     setRanks,
-    getRank
+    getRank,
+    getWinner
 } = require('./users');
 botname = "domobot"
 var countdown = 0
 answer = 0
 
 words = [
-    ['대한민국', '대한민국.png'],
-    ['일본', '일본.png'],
-    ['미국', '미국.png'],
-    ['영국','영국.png'],
-    ['인도','인도.png'],
-    ['독일','독일.png'],
-    ['캐나다','캐나다.png'],
-    ['태국','태국.png']
+    ['소아온', 'https://staging.animethemes.moe/video/SwordArtOnline-ED1.webm'],
+    ['모노가타리', 'https://staging.animethemes.moe/video/MonogatariSS-OP1.webm'],
+    ['데어라', 'https://staging.animethemes.moe/video/DateALive-ED1.webm'],
+    ['카구야','https://staging.animethemes.moe/video/KaguyaSamaWaKokurasetai-ED1.webm'],
+    ['페스나','https://staging.animethemes.moe/video/FateStayNightOVA-ED1.webm'],
+    ['페그오','https://staging.animethemes.moe/video/FateGrandOrderBabylonia-ED1.webm'],
+    ['바이올렛','https://staging.animethemes.moe/video/VioletEvergarden-ED1.webm']
 ]
 
 var updateUserScoreRank = (io, user) => {
@@ -38,15 +38,17 @@ var updateUserScoreRank = (io, user) => {
 }
 
 class Game {
-    constructor(totalRounds) {
+    constructor(totalRounds, roundTime) {
         this.totalRounds = totalRounds
         this.round = 1
+        this.roundTime = roundTime
     }
 
-    questionpool = words
-    questions = []
-    state = true
-    counter = 20
+    questionpool = words;
+    questions = [];
+    state = true;
+    ready = new Set();
+    counter = 90
 
     startGame = (io, user) => {
         io.to(user.room).emit(
@@ -87,7 +89,7 @@ class Game {
     }
 
     runRound = (io, user) => {
-        console.log(`round: ${this.round}`)
+        this.counter = this.roundTime
 
         // Send users round info
         io.to(user.room).emit('roundInfo', {
@@ -104,31 +106,33 @@ class Game {
             console.log(this.counter)
             this.counter--;
             if (this.counter===-1) {
-                this.counter = 20
+                this.counter = this.roundTime
                 this.timeUp(io, user);
             }
         }, 1000);
 
         // clear canvas
-        io.to(user.room).emit('image', {image: false, buffer: false});
+        io.to(user.room).emit('video', {video: false, src: this.questions[0][1], id: this.round});
 
-        // show question image
-        fs.readFile(path.join(__dirname, '../../public/img', game.questions[0][1]), function(err, buf){
-            io.to(user.room).emit('image', { image: true, buffer: buf.toString('base64') });
-        });
+        // send question video
+        io.to(user.room).emit('video', { video: true, src: this.questions[0][1], id: this.round});
+        console.log(this.questions[0][1])
     }
 
     answered = (io, user) => {
         io.to(user.room).emit('message', formatMessage(botname, `${user.username} right answer`));
 
         answer = "";
-        this.counter = 20
+        this.counter = this.roundTime
 
         // clear countdown
         clearInterval(countdown);
 
         // add round
         this.round++;
+
+        // ready = 0
+        this.ready.clear()
 
         // update scores and rank
         updateScores(user, 10);
@@ -139,7 +143,7 @@ class Game {
             this.questions.shift();
             this.runRound(io, user);
         } else {
-            this.endGame()
+            this.endGame(io, user)
         }
     }
 
@@ -153,6 +157,9 @@ class Game {
 
         // add round
         this.round++;
+
+        // ready = 0
+        this.ready.clear()
         
         // some Interval
 
@@ -161,13 +168,14 @@ class Game {
             this.questions.shift();
             this.runRound(io, user);
         } else {
-            this.endGame()
+            this.endGame(io, user)
         }
     }
 
     endGame(io, user) {
         console.log('game end')
         io.to(user.room).emit('message', formatMessage(botname, `Game Over`));
+        io.to(user.room).emit('message', formatMessage(botname, `Winner is ${getWinner()}`));
     }
 
 }

@@ -58,7 +58,28 @@ function getRank(id) {
     return users.find(c => c.id === id)['rank'];
     }
 
+// Get current user
+function getWinner(id) {
+    winners = users.filter(user => user.rank === 1);
+    if (winners.length === 1) {
+        return winners[0].username
+    } else {
+        var str= ""
+        for (let i = 0; i < winners.length; i++) {
+            str = str + winners[i].username
+        }
+        return str
+    }
 
+};
+
+function checkNobody(room) {
+    if (users.filter(user => user.room === room).length === 0) {
+        return true
+    } else {
+        return false
+    }
+}
 
 module.exports = {
     userJoin,
@@ -68,5 +89,7 @@ module.exports = {
     updateScores,
     resetScores,
     setRanks,
-    getRank
+    getRank,
+    getWinner,
+    checkNobody
 }

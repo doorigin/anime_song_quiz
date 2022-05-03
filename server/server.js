@@ -12,18 +12,9 @@ const {
     updateScores,
     resetScores,
     setRanks,
-    getRank
+    getRank,
+    checkNobody
 } = require('./utils/users');
-const {
-    addWords,
-    getAnswer,
-    getQuestion,
-    nextQuestion,
-    resetWords,
-    setRounds,
-    decreaseRounds,
-    getRounds
-} = require('./utils/question');
 const {Game, updateUserScoreRank} = require('./utils/game');
 
 global.answer = ""
@@ -48,6 +39,10 @@ io.on('connection', socket => {
 
         socket.join(user.room)
 
+        if (socket.id === getRoomUsers(user.room)[0].id) {
+            socket.emit('showStartButton')
+        }
+
         // Welcome current user
         socket.emit('message', formatMessage(botname,'Welcome to the game'));
 
@@ -71,11 +66,12 @@ io.on('connection', socket => {
     });
 
     // When Game start button clicked
-    socket.on('startGame', () => {
+    socket.on('startGame', ({rounds, roundtime}) => {
+        console.log("round: ", rounds, roundtime)
+        console.log(typeof(rounds), typeof(roundtime))
         const user = getCurrentUser(socket.id);
 
-        var round = 5
-        global.game = new Game(round)
+        global.game = new Game(rounds, roundtime)
 
         game.startGame(io, user)
 
@@ -87,14 +83,32 @@ io.on('connection', socket => {
         
     });
 
+    socket.on('ready', () => {
+        user = getCurrentUser(socket.id)
+        console.log(socket.id, 'ready')
+        game.ready.add(socket.id)
+        console.log(game.ready.size)
+        console.log(getRoomUsers(user.room).length)
+        if (game.ready.size === getRoomUsers(user.room).length) {
+            io.to(user.room).emit('play')
+        }
+    })
 
     // Runs when client disconnects
     socket.on('disconnect', () => {
+        console.log('user disconnected');
         const user = userLeave(socket.id);
 
         if(user) {
             io.to(user.room).emit('message', formatMessage(botname,`${user.username} has left the chat`));
             updateUserScoreRank(io, user)
+        
+        if (checkNobody(user.room) === true) {
+            console.log('delete game')
+            delete game
+        } else {
+            io.to(getRoomUsers(user.room)[0].id).emit('showStartButton')
+        }
         }
     });
 });
