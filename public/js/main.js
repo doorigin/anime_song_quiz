@@ -138,7 +138,7 @@ socket.on('video', (info) => {
     if (info.video) {
         console.log(info.src);
         var canvas = document.getElementById("containerCanvas");
-        canvas.innerHTML = `<video id=video${info.id} src=${info.src} width="100%" oncanplaythrough="readyToPlay()"></video>`
+        canvas.innerHTML = `<video id=video${info.id} src=${info.src} width="100%" oncanplaythrough="readyToPlay()" onloadstart="this.volume=0.35"></video>`
     } else {
         console.log("no video");
     }

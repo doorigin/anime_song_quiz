@@ -60,7 +60,10 @@ io.on('connection', socket => {
         io.to(user.room).emit('message', formatMessage(user.username, msg));
 
         // if answer is right
-        if (answer !== "" && answer === msg) {
+        console.log(answer)
+        console.log(msg.replace(/\s+/g, ''))
+        if (answer !== "" && answer.map(s => s.replace(/\s+/g, '')).includes(msg.replace(/\s+/g, ''))) {
+            console.log('correct')
             game.answered(io, user)}
         
     });
